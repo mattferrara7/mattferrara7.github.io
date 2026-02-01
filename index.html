@@ -95,21 +95,24 @@
 <body>
 
   <div class="card">
+  <div id="topContent">
     <div class="emoji">💗</div>
-    <h1>Piper Tinory will you be my valentine?</h1>
-
-    <div class="buttons">
-      <button id="yesBtn">Yes</button>
-      <button id="noBtn">No</button>
-    </div>
-
-    <div class="hint">The "No" seems a bit shy HAHA</div>
-
-    <div id="celebrate">
-      <img src="celebrate.webp" alt="celebration" />
-      <h2>YAY!! Be free on the 14th!!!😉</h2>
-    </div>
+    <h1>piper tinory will you be my valentine?</h1>
   </div>
+
+  <div class="buttons">
+    <button id="yesBtn">Yes</button>
+    <button id="noBtn">No</button>
+  </div>
+
+  <div class="hint">"No" seems a bit shy 😈</div>
+
+  <div id="celebrate">
+    <img src="celebrate.webp" alt="celebration" />
+    <h2>YAY!! Be free on the 14th!!! 😊</h2>
+  </div>
+</div>
+
 
   <script>
     const noBtn = document.getElementById("noBtn");
@@ -133,23 +136,27 @@
 
     // YES button celebration
     yesBtn.addEventListener("click", () => {
-      document.querySelector(".buttons").style.display = "none";
-      document.querySelector(".hint").style.display = "none";
-      document.getElementById("celebrate").style.display = "block";
+  // Hide top content + buttons + hint
+  document.getElementById("topContent").style.display = "none";
+  document.querySelector(".buttons").style.display = "none";
+  document.querySelector(".hint").style.display = "none";
 
-      // Confetti burst
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+  // Show celebration
+  document.getElementById("celebrate").style.display = "block";
 
-      // Extra side bursts
-      setTimeout(() => {
-        confetti({ particleCount: 100, angle: 60, spread: 55, origin: { x: 0 } });
-        confetti({ particleCount: 100, angle: 120, spread: 55, origin: { x: 1 } });
-      }, 300);
-    });
+  // Confetti burst
+  confetti({
+    particleCount: 150,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+
+  setTimeout(() => {
+    confetti({ particleCount: 100, angle: 60, spread: 55, origin: { x: 0 } });
+    confetti({ particleCount: 100, angle: 120, spread: 55, origin: { x: 1 } });
+  }, 300);
+});
+
   </script>
 
 </body>
