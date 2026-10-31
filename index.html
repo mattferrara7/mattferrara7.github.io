@@ -430,11 +430,6 @@
       ["😱", "Horror"],
       ["🕵️", "Thriller"],
       ["🎭", "Drama"],
-      ["🚀", "Sci-Fi"],
-      ["🧙", "Fantasy"],
-      ["🔎", "Mystery"],
-      ["🎬", "Documentary"],
-      ["🎶", "Musical"],
       ["♡", "You pick"]
     ];
 
@@ -595,22 +590,24 @@
           result.success === "true";
 
         if (!response.ok || !accepted) {
-          throw new Error("Submission failed");
-        }
+        throw new Error(
+        result.message ||
+        result.error ||
+    `  FormSubmit returned HTTP ${response.status}`
+        );
+}
 
         submitted = true;
         sending = false;
 
         render();
         sparkle();
-      } catch (error) {
-        sending = false;
-
-        sendError =
-          "The plan couldn't be sent. Please try again, or copy the details and send them to Matt.";
-
-        render();
-      }
+      } } catch (error) {
+      sending = false;
+      sendError = `Couldn't send: ${error.message}`;
+      console.error("FormSubmit error:", error);
+      render();
+    }    
     }
 
     function render() {
@@ -665,8 +662,6 @@
         </div>
 
         <div class="eyebrow">Let's make a plan</div>
-
-        <div class="icon" aria-hidden="true">♧</div>
 
         <h1>When works for you?</h1>
 
@@ -862,13 +857,13 @@
         </div>
 
         <h1>
-          ${submitted ? "It's a date!" : "Our little plan"}
+          ${submitted ? "It's a date!" : "Plan Review"}
         </h1>
 
         <p>
           ${submitted
             ? "Hope you're excited!"
-            : "Looking good? Send our plans to Matt."}
+            : "Looking good? Send the plans to Matt. THANK YOU!"}
         </p>
 
         <div class="summary">
