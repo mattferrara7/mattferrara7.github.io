@@ -381,9 +381,7 @@
   </footer>
 
   <script>
-    // IMPORTANT: Replace this with your email address.
-    // This address will be visible in your page source.
-    const RESULTS_EMAIL = "YOUR_EMAIL@example.com";
+    const RESULTS_EMAIL = "mattferrara7@gmail.com";
 
     let step = 0;
     let sending = false;
@@ -394,7 +392,7 @@
       date: "",
       time: "18:00",
       plan: "Church & Coffee",
-      food: "You pick"
+      choice: "You pick"
     };
 
     const card = document.querySelector("#card");
@@ -421,21 +419,68 @@
       ["🍪", "Cookies"],
       ["🍫", "Brownies"],
       ["🧁", "Cupcakes"],
-      ["🍰", "Cake"],
       ["🥧", "Pie"],
-      ["🍩", "Donuts"],
       ["♡", "You pick"]
     ];
 
+    const genres = [
+      ["😂", "Comedy"],
+      ["💕", "Romance"],
+      ["💥", "Action"],
+      ["😱", "Horror"],
+      ["🕵️", "Thriller"],
+      ["🎭", "Drama"],
+      ["🚀", "Sci-Fi"],
+      ["🧙", "Fantasy"],
+      ["🔎", "Mystery"],
+      ["🎬", "Documentary"],
+      ["🎶", "Musical"],
+      ["♡", "You pick"]
+    ];
+
+    const choiceScreens = {
+      "Dinner Date": {
+        options: foods,
+        eyebrow: "Dinner plans",
+        icon: "🍽️",
+        title: "What should we eat?",
+        label: "Food",
+        groupLabel: "Food choices",
+        nextText: "Next: the food →"
+      },
+
+      "Bake goods": {
+        options: desserts,
+        eyebrow: "Something sweet",
+        icon: "🧁",
+        title: "What should we bake?",
+        label: "Dessert",
+        groupLabel: "Dessert choices",
+        nextText: "Next: the dessert →"
+      },
+
+      "Movie Night": {
+        options: genres,
+        eyebrow: "Movie night",
+        icon: "🎬",
+        title: "What are we watching?",
+        label: "Movie genre",
+        groupLabel: "Movie genres",
+        nextText: "Next: the movie genre →"
+      }
+    };
+
     function needsChoices() {
-      return (
-        data.plan === "Dinner Date" ||
-        data.plan === "Bake goods"
+      return Object.prototype.hasOwnProperty.call(
+        choiceScreens,
+        data.plan
       );
     }
 
     function choiceLabel() {
-      return data.plan === "Bake goods" ? "Dessert" : "Food";
+      return needsChoices()
+        ? choiceScreens[data.plan].label
+        : "";
     }
 
     function escapeHTML(value) {
@@ -507,17 +552,6 @@
     async function sendResults() {
       if (sending || submitted) return;
 
-      if (
-        !RESULTS_EMAIL.trim() ||
-        RESULTS_EMAIL === "YOUR_EMAIL@example.com"
-      ) {
-        sendError =
-          "Add your email address to RESULTS_EMAIL in the code first.";
-
-        render();
-        return;
-      }
-
       sending = true;
       sendError = "";
       render();
@@ -534,7 +568,7 @@
       };
 
       if (needsChoices()) {
-        payload[choiceLabel()] = data.food;
+        payload[choiceLabel()] = data.choice;
       }
 
       try {
@@ -641,6 +675,7 @@
         <form id="when">
           <div class="fields">
             <label for="date">Date</label>
+
             <input
               type="date"
               id="date"
@@ -649,6 +684,7 @@
             >
 
             <label for="time">Time</label>
+
             <input
               type="time"
               id="time"
@@ -691,20 +727,18 @@
       const nextButton = document.querySelector("#next");
 
       function updateNextButton() {
-        if (planSelect.value === "Dinner Date") {
-          nextButton.textContent = "Next: the food →";
-        } else if (planSelect.value === "Bake goods") {
-          nextButton.textContent = "Next: the dessert →";
-        } else {
-          nextButton.textContent = "Review our date →";
-        }
+        const screen = choiceScreens[planSelect.value];
+
+        nextButton.textContent = screen
+          ? screen.nextText
+          : "Review our date →";
       }
 
       updateNextButton();
 
       planSelect.onchange = updateNextButton;
 
-      // Preserve entered details if the visitor goes back.
+      // Preserve entered details when navigating back.
       for (const key of ["date", "time"]) {
         document.getElementById(key).oninput = (event) => {
           data[key] = event.target.value;
@@ -720,24 +754,22 @@
           data[key] = document.getElementById(key).value;
         }
 
-        // Reset the menu choice when changing activities.
+        // Clear an unrelated selection when changing activities.
         if (previousPlan !== data.plan) {
-          data.food = "You pick";
+          data.choice = "You pick";
         }
 
         submitted = false;
         sendError = "";
 
-        // Only dinner and baking need another choice screen.
         step = needsChoices() ? 2 : 3;
 
         render();
       };
 
       document.querySelector("#back").onclick = () => {
-        // Save the current activity before leaving the form.
         if (data.plan !== planSelect.value) {
-          data.food = "You pick";
+          data.choice = "You pick";
         }
 
         data.plan = planSelect.value;
@@ -748,8 +780,7 @@
     }
 
     function renderChoices() {
-      const isDessert = data.plan === "Bake goods";
-      const options = isDessert ? desserts : foods;
+      const screen = choiceScreens[data.plan];
 
       card.innerHTML = `
         <div class="steps" aria-hidden="true">
@@ -758,37 +789,27 @@
         </div>
 
         <div class="eyebrow">
-          ${isDessert ? "Something sweet" : "Dinner plans"}
+          ${escapeHTML(screen.eyebrow)}
         </div>
 
         <div class="icon" aria-hidden="true">
-          ${isDessert ? "🧁" : "🍽️"}
+          ${screen.icon}
         </div>
 
-        <h1>
-          ${isDessert
-            ? "What should we bake?"
-            : "What should we eat?"}
-        </h1>
-
-        <p>
-          ${isDessert
-            ? "A little sugar and some time together."
-            : "The most delicious decision of the night."}
-        </p>
+        <h1>${escapeHTML(screen.title)}</h1>
 
         <div
           class="foods"
           role="group"
-          aria-label="${isDessert ? "Dessert choices" : "Food choices"}"
+          aria-label="${escapeHTML(screen.groupLabel)}"
         >
-          ${options.map(([emoji, name]) => `
+          ${screen.options.map(([emoji, name]) => `
             <button
               class="food ${
-                data.food === name ? "selected" : ""
+                data.choice === name ? "selected" : ""
               }"
-              aria-pressed="${data.food === name}"
-              data-food="${escapeHTML(name)}"
+              aria-pressed="${data.choice === name}"
+              data-choice="${escapeHTML(name)}"
             >
               <span aria-hidden="true">${emoji}</span>
               ${escapeHTML(name)}
@@ -807,13 +828,13 @@
         </div>
       `;
 
-      document.querySelectorAll("[data-food]").forEach((button) => {
+      document.querySelectorAll("[data-choice]").forEach((button) => {
         button.onclick = () => {
-          data.food = button.dataset.food;
+          data.choice = button.dataset.choice;
 
-          // Update selection without replacing the focused button.
-          document.querySelectorAll("[data-food]").forEach((item) => {
-            const selected = item.dataset.food === data.food;
+          document.querySelectorAll("[data-choice]").forEach((item) => {
+            const selected =
+              item.dataset.choice === data.choice;
 
             item.classList.toggle("selected", selected);
             item.setAttribute("aria-pressed", String(selected));
@@ -868,13 +889,8 @@
 
           ${needsChoices() ? `
             <div>
-              <span>
-                ${data.plan === "Bake goods"
-                  ? "For dessert"
-                  : "On the menu"}
-              </span>
-
-              <strong>${escapeHTML(data.food)}</strong>
+              <span>${escapeHTML(choiceLabel())}</span>
+              <strong>${escapeHTML(data.choice)}</strong>
             </div>
           ` : ""}
         </div>
@@ -933,7 +949,7 @@
         ];
 
         if (needsChoices()) {
-          lines.push(`${choiceLabel()}: ${data.food}`);
+          lines.push(`${choiceLabel()}: ${data.choice}`);
         }
 
         try {
