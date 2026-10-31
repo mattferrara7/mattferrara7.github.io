@@ -328,10 +328,6 @@
 </head>
 
 <body>
-  <header>
-    A little invitation
-    <span>♡</span>
-  </header>
 
   <main>
     <section class="card" id="card" aria-live="polite"></section>
@@ -363,22 +359,6 @@
       ["♡", "You pick"]
     ];
 
-    function sparkle() {
-      for (let i = 0; i < 35; i++) {
-        const element = document.createElement("span");
-
-        element.className = "confetti";
-        element.textContent = ["♥", "✦", "•"][i % 3];
-        element.style.left = Math.random() * 100 + "vw";
-        element.style.animationDelay = Math.random() * 0.6 + "s";
-        element.style.fontSize = 10 + Math.random() * 12 + "px";
-
-        document.body.append(element);
-
-        setTimeout(() => element.remove(), 4000);
-      }
-    }
-
     function render() {
       if (step === 0) {
         card.innerHTML = `
@@ -388,11 +368,6 @@
             Will you go on<br>
             a date with me?
           </h1>
-
-          <p>
-            No grand speech. Just you and me ;)<br>
-            
-          </p>
 
           <button class="primary" id="yes">
             ♥ &nbsp; Yes, I'd love to
@@ -435,7 +410,7 @@
           <h1>When works for you?</h1>
 
           <p>
-            Pick a date and time. Let's make it special.
+            Pick a date and time!
           </p>
 
           <form id="when">
@@ -568,17 +543,13 @@
         });
 
         card.innerHTML = `
-          <div class="eyebrow">
-            Officially looking forward to it
-          </div>
-
           <div class="art">
             <span>🥂</span>
           </div>
 
-          <h1>It's a date.</h1>
+          <h1>It's a date!</h1>
 
-          <p>A little plan. A very big smile.</p>
+          <p>Hope you're excited!</p>
 
           <div class="summary">
             <div>
