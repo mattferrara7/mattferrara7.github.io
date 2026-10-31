@@ -338,7 +338,7 @@
   </main>
 
   <footer>
-    MADE WITH A LITTLE COURAGE &amp; A LOT OF ♡
+    Created by yours truly Matthew J Ferrara
   </footer>
 
   <script>
@@ -360,8 +360,6 @@
       ["🌮", "Tacos"],
       ["🍔", "Burgers"],
       ["🍜", "Ramen"],
-      ["🥞", "Brunch"],
-      ["🍰", "Dessert first"],
       ["♡", "You pick"]
     ];
 
@@ -384,7 +382,7 @@
     function render() {
       if (step === 0) {
         card.innerHTML = `
-          <div class="eyebrow">A small question</div>
+          <div class="eyebrow">Emily Kelly, a small question...</div>
 
           <h1>
             Will you go on<br>
@@ -392,25 +390,17 @@
           </h1>
 
           <p>
-            No grand speech. Just you, me,<br>
-            and something lovely to look forward to.
+            No grand speech. Just you and me ;)<br>
+            
           </p>
-
-          <div class="art">
-            <span>💌</span>
-          </div>
 
           <button class="primary" id="yes">
             ♥ &nbsp; Yes, I'd love to
           </button>
 
           <button class="secondary" id="maybe">
-            Let me think…
+            NO!
           </button>
-
-          <div class="foot">
-            ONE LITTLE YES. ENDLESS POSSIBILITIES.
-          </div>
         `;
 
         document.querySelector("#yes").onclick = () => {
@@ -428,11 +418,8 @@
       if (step === 1) {
         const activities = [
           "Cozy coffee",
-          "Arcade night",
           "Sunset walk",
           "Dinner & a movie",
-          "Mini golf",
-          "Bookstore wander",
           "Surprise me"
         ];
 
