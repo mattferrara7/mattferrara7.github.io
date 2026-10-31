@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>A little date?</title>
+
   <meta
     name="description"
     content="One little question. A lovely little plan."
@@ -33,25 +35,11 @@
         #f9e9e8;
     }
 
-    header {
-      padding: 28px 6%;
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    header span {
-      letter-spacing: 0;
-      font-size: 18px;
-    }
-
     main {
-      min-height: calc(100svh - 110px);
+      min-height: calc(100svh - 60px);
       display: grid;
       place-items: center;
-      padding: 30px 20px 65px;
+      padding: 45px 20px;
     }
 
     .card {
@@ -71,12 +59,13 @@
       font-weight: 700;
       text-transform: uppercase;
       color: #947b78;
+      line-height: 1.8;
     }
 
     h1 {
       font: normal 43px / 0.99 Georgia, serif;
       letter-spacing: -1.8px;
-      margin: 22px 0 14px;
+      margin: 22px 0;
     }
 
     p {
@@ -132,11 +121,19 @@
       border: 0;
       border-radius: 99px;
       padding: 15px 22px;
-      transition: transform 0.2s, background 0.2s;
+      transition:
+        transform 0.2s,
+        background 0.2s,
+        opacity 0.2s;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       transform: translateY(-2px);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.65;
     }
 
     button:focus-visible,
@@ -167,6 +164,7 @@
       font-size: 10px;
       color: #b09b98;
       letter-spacing: 1px;
+      line-height: 1.7;
     }
 
     .steps {
@@ -204,11 +202,13 @@
       font-weight: 700;
       margin: 20px 0 9px;
       color: #8a7374;
+      text-transform: uppercase;
     }
 
     input,
     select {
       width: 100%;
+      min-width: 0;
       padding: 12px;
       border: 1px solid #e4dcd1;
       border-radius: 10px;
@@ -223,7 +223,7 @@
 
     .foods {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 9px;
       margin: 28px 0;
     }
@@ -233,7 +233,7 @@
       background: transparent;
       border-radius: 12px;
       padding: 16px 4px 12px;
-      font-size: 10px;
+      font-size: 11px;
       color: #665156;
     }
 
@@ -257,6 +257,7 @@
 
     .row .secondary {
       margin: 0;
+      flex-shrink: 0;
     }
 
     .summary {
@@ -277,11 +278,29 @@
 
     .summary span {
       color: #9a7e83;
+      flex-shrink: 0;
     }
 
     .summary strong {
       text-align: right;
       font-weight: 500;
+      overflow-wrap: anywhere;
+    }
+
+    .notice {
+      font-size: 11px;
+      margin: 12px 0;
+    }
+
+    .error {
+      color: #ad164b;
+      background: #f9e8ec;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .success {
+      color: #6c7951;
     }
 
     footer {
@@ -289,12 +308,14 @@
       font-size: 10px;
       letter-spacing: 2px;
       color: #ab8d93;
-      padding-bottom: 20px;
+      padding: 0 20px 20px;
+      line-height: 1.8;
     }
 
     .confetti {
       position: fixed;
       top: -20px;
+      z-index: 10;
       pointer-events: none;
       animation: fall 3s ease-in forwards;
       color: #ad164b;
@@ -308,12 +329,8 @@
     }
 
     @media (max-width: 480px) {
-      header {
-        padding: 22px;
-      }
-
       main {
-        padding: 20px 18px 45px;
+        padding: 30px 18px;
       }
 
       .card {
@@ -323,14 +340,40 @@
       h1 {
         font-size: 40px;
       }
+
+      input,
+      select {
+        font-size: 16px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      button {
+        transition: none;
+      }
+
+      button:hover:not(:disabled) {
+        transform: none;
+      }
+
+      .confetti {
+        display: none;
+      }
     }
   </style>
 </head>
 
 <body>
-
   <main>
-    <section class="card" id="card" aria-live="polite"></section>
+    <section
+      class="card"
+      id="card"
+      aria-live="polite"
+    ></section>
+
+    <noscript>
+      Please enable JavaScript to open your invitation.
+    </noscript>
   </main>
 
   <footer>
@@ -338,16 +381,31 @@
   </footer>
 
   <script>
+    // IMPORTANT: Replace this with your email address.
+    // This address will be visible in your page source.
+    const RESULTS_EMAIL = "YOUR_EMAIL@example.com";
+
     let step = 0;
+    let sending = false;
+    let submitted = false;
+    let sendError = "";
 
     const data = {
       date: "",
       time: "18:00",
-      plan: "Cozy coffee",
+      plan: "Church & Coffee",
       food: "You pick"
     };
 
     const card = document.querySelector("#card");
+
+    const activities = [
+      "Church & Coffee",
+      "Dinner Date",
+      "Movie Night",
+      "Bake goods",
+      "Surprise me"
+    ];
 
     const foods = [
       ["🍝", "Italian"],
@@ -359,257 +417,545 @@
       ["♡", "You pick"]
     ];
 
+    const desserts = [
+      ["🍪", "Cookies"],
+      ["🍫", "Brownies"],
+      ["🧁", "Cupcakes"],
+      ["🍰", "Cake"],
+      ["🥧", "Pie"],
+      ["🍩", "Donuts"],
+      ["♡", "You pick"]
+    ];
+
+    function needsChoices() {
+      return (
+        data.plan === "Dinner Date" ||
+        data.plan === "Bake goods"
+      );
+    }
+
+    function choiceLabel() {
+      return data.plan === "Bake goods" ? "Dessert" : "Food";
+    }
+
+    function escapeHTML(value) {
+      const replacements = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      };
+
+      return String(value).replace(
+        /[&<>"']/g,
+        (character) => replacements[character]
+      );
+    }
+
+    function localToday() {
+      const now = new Date();
+
+      return [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0")
+      ].join("-");
+    }
+
+    function formattedDate() {
+      const date = new Date(`${data.date}T${data.time}`);
+
+      return {
+        date: date.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric"
+        }),
+
+        time: date.toLocaleTimeString(undefined, {
+          hour: "numeric",
+          minute: "2-digit"
+        })
+      };
+    }
+
+    function sparkle() {
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+      if (reducedMotion) return;
+
+      for (let i = 0; i < 35; i++) {
+        const element = document.createElement("span");
+
+        element.className = "confetti";
+        element.setAttribute("aria-hidden", "true");
+        element.textContent = ["♥", "✦", "•"][i % 3];
+        element.style.left = `${Math.random() * 100}vw`;
+        element.style.animationDelay = `${Math.random() * 0.6}s`;
+        element.style.fontSize = `${10 + Math.random() * 12}px`;
+
+        document.body.append(element);
+
+        setTimeout(() => element.remove(), 4000);
+      }
+    }
+
+    async function sendResults() {
+      if (sending || submitted) return;
+
+      if (
+        !RESULTS_EMAIL.trim() ||
+        RESULTS_EMAIL === "YOUR_EMAIL@example.com"
+      ) {
+        sendError =
+          "Add your email address to RESULTS_EMAIL in the code first.";
+
+        render();
+        return;
+      }
+
+      sending = true;
+      sendError = "";
+      render();
+
+      const formatted = formattedDate();
+
+      const payload = {
+        _subject: "Emily said YES! 💌",
+        _template: "table",
+        Response: "Yes, I'd love to!",
+        Date: formatted.date,
+        Time: formatted.time,
+        Activity: data.plan
+      };
+
+      if (needsChoices()) {
+        payload[choiceLabel()] = data.food;
+      }
+
+      try {
+        const response = await fetch(
+          `https://formsubmit.co/ajax/${encodeURIComponent(
+            RESULTS_EMAIL.trim()
+          )}`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+
+            body: JSON.stringify(payload)
+          }
+        );
+
+        const result = await response.json();
+
+        const accepted =
+          result.success === true ||
+          result.success === "true";
+
+        if (!response.ok || !accepted) {
+          throw new Error("Submission failed");
+        }
+
+        submitted = true;
+        sending = false;
+
+        render();
+        sparkle();
+      } catch (error) {
+        sending = false;
+
+        sendError =
+          "The plan couldn't be sent. Please try again, or copy the details and send them to Matt.";
+
+        render();
+      }
+    }
+
     function render() {
       if (step === 0) {
-        card.innerHTML = `
-          <div class="eyebrow">Emily Kelly, a small question...</div>
+        renderInvitation();
+      } else if (step === 1) {
+        renderDateForm();
+      } else if (step === 2) {
+        renderChoices();
+      } else if (step === 3) {
+        renderSummary();
+      }
+    }
 
-          <h1>
-            Will you go on<br>
-            a date with me?
-          </h1>
+    function renderInvitation() {
+      card.innerHTML = `
+        <div class="eyebrow">
+          Emily Kelly, a small question...
+        </div>
 
-          <button class="primary" id="yes">
-            ♥ &nbsp; Yes, I'd love to
+        <h1>
+          Will you go on<br>
+          a date with me?
+        </h1>
+
+        <button class="primary" id="yes">
+          ♥ &nbsp; Yes, I'd love to
+        </button>
+
+        <button class="secondary" id="maybe">
+          NO!
+        </button>
+      `;
+
+      document.querySelector("#yes").onclick = () => {
+        step = 1;
+        render();
+        sparkle();
+      };
+
+      document.querySelector("#maybe").onclick = (event) => {
+        event.target.textContent =
+          "Take your time. The invitation stays ♡";
+      };
+    }
+
+    function renderDateForm() {
+      card.innerHTML = `
+        <div class="steps" aria-hidden="true">
+          <i class="on"></i>
+          <i></i>
+        </div>
+
+        <div class="eyebrow">Let's make a plan</div>
+
+        <div class="icon" aria-hidden="true">♧</div>
+
+        <h1>When works for you?</h1>
+
+        <p>Pick a date and time!</p>
+
+        <form id="when">
+          <div class="fields">
+            <label for="date">Date</label>
+            <input
+              type="date"
+              id="date"
+              name="date"
+              required
+            >
+
+            <label for="time">Time</label>
+            <input
+              type="time"
+              id="time"
+              name="time"
+              required
+            >
+
+            <label for="plan">The plan</label>
+
+            <select id="plan" name="plan" required>
+              ${activities.map((activity) => `
+                <option value="${escapeHTML(activity)}">
+                  ${escapeHTML(activity)}
+                </option>
+              `).join("")}
+            </select>
+          </div>
+
+          <button
+            class="primary"
+            id="next"
+            type="submit"
+          >
+            Review our date →
           </button>
+        </form>
 
-          <button class="secondary" id="maybe">
-            NO!
-          </button>
-        `;
+        <button class="secondary" id="back">
+          ← Back
+        </button>
+      `;
 
-        document.querySelector("#yes").onclick = () => {
-          step = 1;
-          render();
-          sparkle();
-        };
+      for (const key of ["date", "time", "plan"]) {
+        document.getElementById(key).value = data[key];
+      }
 
-        document.querySelector("#maybe").onclick = (event) => {
-          event.target.textContent =
-            "Take your time. The invitation stays ♡";
+      document.querySelector("#date").min = localToday();
+
+      const planSelect = document.querySelector("#plan");
+      const nextButton = document.querySelector("#next");
+
+      function updateNextButton() {
+        if (planSelect.value === "Dinner Date") {
+          nextButton.textContent = "Next: the food →";
+        } else if (planSelect.value === "Bake goods") {
+          nextButton.textContent = "Next: the dessert →";
+        } else {
+          nextButton.textContent = "Review our date →";
+        }
+      }
+
+      updateNextButton();
+
+      planSelect.onchange = updateNextButton;
+
+      // Preserve entered details if the visitor goes back.
+      for (const key of ["date", "time"]) {
+        document.getElementById(key).oninput = (event) => {
+          data[key] = event.target.value;
         };
       }
 
-      if (step === 1) {
-        const activities = [
-          "Cozy coffee",
-          "Sunset walk",
-          "Dinner & a movie",
-          "Surprise me"
-        ];
+      document.querySelector("#when").onsubmit = (event) => {
+        event.preventDefault();
 
-        card.innerHTML = `
-          <div class="steps">
-            <i class="on"></i>
-            <i></i>
-          </div>
+        const previousPlan = data.plan;
 
-          <div class="eyebrow">Step 1 of 2</div>
-          <div class="icon">♧</div>
+        for (const key of ["date", "time", "plan"]) {
+          data[key] = document.getElementById(key).value;
+        }
 
-          <h1>When works for you?</h1>
+        // Reset the menu choice when changing activities.
+        if (previousPlan !== data.plan) {
+          data.food = "You pick";
+        }
 
-          <p>
-            Pick a date and time!
-          </p>
+        submitted = false;
+        sendError = "";
 
-          <form id="when">
-            <div class="fields">
-              <label for="date">Date</label>
-              <input type="date" id="date" required>
+        // Only dinner and baking need another choice screen.
+        step = needsChoices() ? 2 : 3;
 
-              <label for="time">Time</label>
-              <input type="time" id="time" required>
+        render();
+      };
 
-              <label for="plan">The plan</label>
+      document.querySelector("#back").onclick = () => {
+        // Save the current activity before leaving the form.
+        if (data.plan !== planSelect.value) {
+          data.food = "You pick";
+        }
 
-              <select id="plan">
-                ${activities.map((activity) => `
-                  <option>${activity}</option>
-                `).join("")}
-              </select>
-            </div>
+        data.plan = planSelect.value;
 
-            <button class="primary">
-              Next: the food →
+        step = 0;
+        render();
+      };
+    }
+
+    function renderChoices() {
+      const isDessert = data.plan === "Bake goods";
+      const options = isDessert ? desserts : foods;
+
+      card.innerHTML = `
+        <div class="steps" aria-hidden="true">
+          <i class="on"></i>
+          <i class="on"></i>
+        </div>
+
+        <div class="eyebrow">
+          ${isDessert ? "Something sweet" : "Dinner plans"}
+        </div>
+
+        <div class="icon" aria-hidden="true">
+          ${isDessert ? "🧁" : "🍽️"}
+        </div>
+
+        <h1>
+          ${isDessert
+            ? "What should we bake?"
+            : "What should we eat?"}
+        </h1>
+
+        <p>
+          ${isDessert
+            ? "A little sugar and some time together."
+            : "The most delicious decision of the night."}
+        </p>
+
+        <div
+          class="foods"
+          role="group"
+          aria-label="${isDessert ? "Dessert choices" : "Food choices"}"
+        >
+          ${options.map(([emoji, name]) => `
+            <button
+              class="food ${
+                data.food === name ? "selected" : ""
+              }"
+              aria-pressed="${data.food === name}"
+              data-food="${escapeHTML(name)}"
+            >
+              <span aria-hidden="true">${emoji}</span>
+              ${escapeHTML(name)}
             </button>
-          </form>
+          `).join("")}
+        </div>
 
+        <div class="row">
           <button class="secondary" id="back">
             ← Back
           </button>
-        `;
 
-        for (const key of ["date", "time", "plan"]) {
-          document.getElementById(key).value = data[key];
+          <button class="primary" id="done">
+            Review our date →
+          </button>
+        </div>
+      `;
+
+      document.querySelectorAll("[data-food]").forEach((button) => {
+        button.onclick = () => {
+          data.food = button.dataset.food;
+
+          // Update selection without replacing the focused button.
+          document.querySelectorAll("[data-food]").forEach((item) => {
+            const selected = item.dataset.food === data.food;
+
+            item.classList.toggle("selected", selected);
+            item.setAttribute("aria-pressed", String(selected));
+          });
+        };
+      });
+
+      document.querySelector("#back").onclick = () => {
+        step = 1;
+        render();
+      };
+
+      document.querySelector("#done").onclick = () => {
+        step = 3;
+        render();
+      };
+    }
+
+    function renderSummary() {
+      const formatted = formattedDate();
+
+      card.innerHTML = `
+        <div class="art" aria-hidden="true">
+          <span>${submitted ? "🥂" : "💌"}</span>
+        </div>
+
+        <h1>
+          ${submitted ? "It's a date!" : "Our little plan"}
+        </h1>
+
+        <p>
+          ${submitted
+            ? "Hope you're excited!"
+            : "Looking good? Send our plans to Matt."}
+        </p>
+
+        <div class="summary">
+          <div>
+            <span>When</span>
+            <strong>${escapeHTML(formatted.date)}</strong>
+          </div>
+
+          <div>
+            <span>Time</span>
+            <strong>${escapeHTML(formatted.time)}</strong>
+          </div>
+
+          <div>
+            <span>The plan</span>
+            <strong>${escapeHTML(data.plan)}</strong>
+          </div>
+
+          ${needsChoices() ? `
+            <div>
+              <span>
+                ${data.plan === "Bake goods"
+                  ? "For dessert"
+                  : "On the menu"}
+              </span>
+
+              <strong>${escapeHTML(data.food)}</strong>
+            </div>
+          ` : ""}
+        </div>
+
+        ${sendError ? `
+          <p class="error" role="alert">
+            ${escapeHTML(sendError)}
+          </p>
+        ` : ""}
+
+        ${!submitted ? `
+          <button
+            class="primary"
+            id="send"
+            ${sending ? "disabled" : ""}
+          >
+            ${sending
+              ? "Sending our plans…"
+              : "Send our date plan 💌"}
+          </button>
+
+          <p class="notice">
+            Sends your choices to Matt through FormSubmit.
+          </p>
+        ` : `
+          <p class="success" role="status">
+            Your plan has been submitted ♡
+          </p>
+        `}
+
+        <button
+          class="${submitted ? "primary" : "secondary"}"
+          id="copy"
+        >
+          Copy our date plan ♡
+        </button>
+
+        <button
+          class="secondary"
+          id="edit"
+          ${sending ? "disabled" : ""}
+        >
+          Edit the details
+        </button>
+      `;
+
+      if (!submitted) {
+        document.querySelector("#send").onclick = sendResults;
+      }
+
+      document.querySelector("#copy").onclick = async () => {
+        const lines = [
+          "It's a date! ♡",
+          `${formatted.date} at ${formatted.time}`,
+          data.plan
+        ];
+
+        if (needsChoices()) {
+          lines.push(`${choiceLabel()}: ${data.food}`);
         }
 
-        const now = new Date();
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
 
-        document.querySelector("#date").min = [
-          now.getFullYear(),
-          String(now.getMonth() + 1).padStart(2, "0"),
-          String(now.getDate()).padStart(2, "0")
-        ].join("-");
+          document.querySelector("#copy").textContent =
+            "Copied! Ready to send ♥";
+        } catch (error) {
+          document.querySelector("#copy").textContent =
+            "Select and copy the details above";
+        }
+      };
 
-        document.querySelector("#when").onsubmit = (event) => {
-          event.preventDefault();
+      document.querySelector("#edit").onclick = () => {
+        if (sending) return;
 
-          for (const key of ["date", "time", "plan"]) {
-            data[key] = document.getElementById(key).value;
-          }
+        submitted = false;
+        sendError = "";
+        step = 1;
 
-          step = 2;
-          render();
-        };
-
-        document.querySelector("#back").onclick = () => {
-          step = 0;
-          render();
-        };
-      }
-
-      if (step === 2) {
-        card.innerHTML = `
-          <div class="steps">
-            <i class="on"></i>
-            <i class="on"></i>
-          </div>
-
-          <div class="eyebrow">Step 2 of 2</div>
-          <div class="icon">♧</div>
-
-          <h1>What should we eat?</h1>
-
-          <p>
-            The most delicious decision of the night.
-          </p>
-
-          <div class="foods">
-            ${foods.map(([emoji, name]) => `
-              <button
-                class="food ${data.food === name ? "selected" : ""}"
-                aria-pressed="${data.food === name}"
-                data-food="${name}"
-              >
-                <span>${emoji}</span>
-                ${name}
-              </button>
-            `).join("")}
-          </div>
-
-          <div class="row">
-            <button class="secondary" id="back">
-              ← Back
-            </button>
-
-            <button class="primary" id="done">
-              It's a date ♡
-            </button>
-          </div>
-        `;
-
-        document.querySelectorAll("[data-food]").forEach((button) => {
-          button.onclick = () => {
-            data.food = button.dataset.food;
-            render();
-          };
-        });
-
-        document.querySelector("#back").onclick = () => {
-          step = 1;
-          render();
-        };
-
-        document.querySelector("#done").onclick = () => {
-          step = 3;
-          render();
-          sparkle();
-        };
-      }
-
-      if (step === 3) {
-        const date = new Date(data.date + "T" + data.time);
-
-        const niceDate = date.toLocaleDateString(undefined, {
-          weekday: "long",
-          month: "long",
-          day: "numeric"
-        });
-
-        const time = date.toLocaleTimeString(undefined, {
-          hour: "numeric",
-          minute: "2-digit"
-        });
-
-        card.innerHTML = `
-          <div class="art">
-            <span>🥂</span>
-          </div>
-
-          <h1>It's a date!</h1>
-
-          <p>Hope you're excited!</p>
-
-          <div class="summary">
-            <div>
-              <span>When</span>
-              <strong>${niceDate}</strong>
-            </div>
-
-            <div>
-              <span>Time</span>
-              <strong>${time}</strong>
-            </div>
-
-            <div>
-              <span>The plan</span>
-              <strong>${data.plan}</strong>
-            </div>
-
-            <div>
-              <span>On the menu</span>
-              <strong>${data.food}</strong>
-            </div>
-          </div>
-
-          <button class="primary" id="copy">
-            Copy our date plan ♡
-          </button>
-
-          <button class="secondary" id="edit">
-            Edit the details
-          </button>
-
-          <div class="foot">
-            YOUR PLAN IS READY TO COPY AND SEND.
-          </div>
-        `;
-
-        document.querySelector("#copy").onclick = async () => {
-          const text = [
-            "It's a date! ♡",
-            `${niceDate} at ${time}`,
-            data.plan,
-            `Food: ${data.food}`
-          ].join("\n");
-
-          try {
-            await navigator.clipboard.writeText(text);
-
-            document.querySelector("#copy").textContent =
-              "Copied! Ready to send ♥";
-          } catch {
-            document.querySelector("#copy").textContent =
-              "Select and copy the details above";
-          }
-        };
-
-        document.querySelector("#edit").onclick = () => {
-          step = 1;
-          render();
-        };
-      }
+        render();
+      };
     }
 
     render();
