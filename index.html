@@ -1,163 +1,660 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Welcome to my date Planner :)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Confetti Library -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A little date?</title>
+  <meta
+    name="description"
+    content="One little question. A lovely little plan."
+  >
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      height: 100vh;
-      background: #f6c1d1;
+      color: #482737;
+      font: 15px system-ui, sans-serif;
+      min-height: 100svh;
+      background:
+        radial-gradient(
+          ellipse at 15% 10%,
+          #edd8ef,
+          transparent 60%
+        ),
+        radial-gradient(
+          ellipse at 90% 95%,
+          #f3d6b8,
+          transparent 60%
+        ),
+        #f9e9e8;
+    }
+
+    header {
+      padding: 28px 6%;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      overflow: hidden;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    header span {
+      letter-spacing: 0;
+      font-size: 18px;
+    }
+
+    main {
+      min-height: calc(100svh - 110px);
+      display: grid;
+      place-items: center;
+      padding: 30px 20px 65px;
     }
 
     .card {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
+      width: min(100%, 460px);
+      padding: 42px 34px 30px;
+      background: #fffdf1;
+      border: 1px solid #fff9ed;
+      border-radius: 22px;
+      box-shadow: 0 22px 65px #7c39531b;
       text-align: center;
-      width: 340px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
       position: relative;
-      z-index: 2;
     }
 
-    .emoji {
-      font-size: 64px;
-      margin-bottom: 10px;
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #947b78;
     }
 
     h1 {
-      font-size: 20px;
-      margin-bottom: 25px;
-      text-transform: lowercase;
+      font: normal 43px / 0.99 Georgia, serif;
+      letter-spacing: -1.8px;
+      margin: 22px 0 14px;
     }
 
-    .buttons {
+    p {
+      font-size: 13px;
+      color: #897375;
+      line-height: 1.7;
+      margin: 0 auto 24px;
+    }
+
+    .art {
+      margin: 26px auto 30px;
+      width: 156px;
+      height: 151px;
+      background: #f8e4e4;
+      border-radius: 80px 80px 24px 24px;
+      display: grid;
+      place-items: center;
       position: relative;
-      height: 120px;
+    }
+
+    .art span {
+      font-size: 78px;
+      filter: drop-shadow(0 6px 0 #d3a49d33);
+    }
+
+    .art::before,
+    .art::after {
+      content: "♡";
+      position: absolute;
+      color: #b92d5c;
+      font-size: 29px;
+      transform: rotate(-20deg);
+      left: 10px;
+      top: 18px;
+    }
+
+    .art::after {
+      left: auto;
+      right: 6px;
+      top: 80px;
+      transform: rotate(15deg);
+      font-size: 22px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
     button {
-      border: none;
-      padding: 12px 26px;
-      font-size: 16px;
-      border-radius: 30px;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      border: 0;
+      border-radius: 99px;
+      padding: 15px 22px;
+      transition: transform 0.2s, background 0.2s;
     }
 
-    #yesBtn {
-      background: #ff4d6d;
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid #d98da5;
+      outline-offset: 3px;
+    }
+
+    .primary {
+      background: #ad164b;
       color: white;
+      box-shadow: 0 5px 14px #ad164b22;
+      width: 100%;
+      font-size: 13px;
+      font-weight: 600;
     }
 
-    #yesBtn:hover {
-      transform: scale(1.08);
+    .secondary {
+      background: transparent;
+      color: #9b7e83;
+      font-size: 11px;
+      margin-top: 8px;
     }
 
-    #noBtn {
-      position: absolute;
-      background: #eee;
-      left: 50%;
-      top: 60px;
-      transform: translateX(-50%);
+    .foot {
+      margin-top: 23px;
+      font-size: 10px;
+      color: #b09b98;
+      letter-spacing: 1px;
     }
 
-    .hint {
-      font-size: 12px;
-      color: #777;
-      margin-top: 10px;
+    .steps {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 24px;
     }
 
-    #celebrate {
-      display: none;
-      margin-top: 20px;
+    .steps i {
+      width: 25px;
+      height: 3px;
+      background: #eadbda;
+      border-radius: 4px;
     }
 
-    #celebrate img {
-      max-width: 260px;
+    .steps i.on {
+      background: #ad164b;
+    }
+
+    .icon {
+      background: #f5e3e6;
+      color: #ad164b;
       border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      padding: 10px;
+      display: inline-block;
+      margin-top: 16px;
+    }
+
+    label {
+      text-align: left;
+      display: block;
+      font-size: 9px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      margin: 20px 0 9px;
+      color: #8a7374;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e4dcd1;
+      border-radius: 10px;
+      color: #61494f;
+      background: transparent;
+      min-height: 45px;
+    }
+
+    .fields {
+      margin-bottom: 25px;
+    }
+
+    .foods {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin: 28px 0;
+    }
+
+    .food {
+      border: 1px solid #e4dcd1;
+      background: transparent;
+      border-radius: 12px;
+      padding: 16px 4px 12px;
+      font-size: 10px;
+      color: #665156;
+    }
+
+    .food span {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 7px;
+    }
+
+    .food.selected {
+      background: #ad164b;
+      color: white;
+      border-color: #ad164b;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .row .secondary {
+      margin: 0;
+    }
+
+    .summary {
+      text-align: left;
+      border-top: 1px solid #e8dbd5;
+      border-bottom: 1px solid #e8dbd5;
+      padding: 12px 0;
+      margin: 25px 0;
+    }
+
+    .summary div {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 2px;
+      font-size: 12px;
+      gap: 20px;
+    }
+
+    .summary span {
+      color: #9a7e83;
+    }
+
+    .summary strong {
+      text-align: right;
+      font-weight: 500;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #ab8d93;
+      padding-bottom: 20px;
+    }
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      pointer-events: none;
+      animation: fall 3s ease-in forwards;
+      color: #ad164b;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(420deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 22px;
+      }
+
+      main {
+        padding: 20px 18px 45px;
+      }
+
+      .card {
+        padding: 35px 26px 26px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
     }
   </style>
 </head>
 
 <body>
+  <header>
+    A little invitation
+    <span>♡</span>
+  </header>
 
-  <div class="card">
-  <div id="topContent">
-    <div class="emoji">💗</div>
-    <h1>piper tinory will you be my valentine?</h1>
-  </div>
+  <main>
+    <section class="card" id="card" aria-live="polite"></section>
+  </main>
 
-  <div class="buttons">
-    <button id="yesBtn">Yes</button>
-    <button id="noBtn">No</button>
-  </div>
-
-  <div class="hint">"No" seems a bit shy 😈</div>
-
-  <div id="celebrate">
-    <img src="celebrate.webp" alt="celebration" />
-    <h2>YAY!! Be free on the 14th!!! 😊</h2>
-  </div>
-</div>
-
+  <footer>
+    MADE WITH A LITTLE COURAGE &amp; A LOT OF ♡
+  </footer>
 
   <script>
-    const noBtn = document.getElementById("noBtn");
-    const yesBtn = document.getElementById("yesBtn");
+    let step = 0;
 
-    // No button dodges
-    noBtn.addEventListener("mouseenter", () => {
-      const card = document.querySelector(".card");
-      const cardRect = card.getBoundingClientRect();
-      const btnRect = noBtn.getBoundingClientRect();
+    const data = {
+      date: "",
+      time: "18:00",
+      plan: "Cozy coffee",
+      food: "You pick"
+    };
 
-      const maxX = cardRect.width - btnRect.width;
-      const maxY = cardRect.height - btnRect.height;
+    const card = document.querySelector("#card");
 
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
+    const foods = [
+      ["🍝", "Italian"],
+      ["🍣", "Sushi"],
+      ["🍕", "Pizza"],
+      ["🌮", "Tacos"],
+      ["🍔", "Burgers"],
+      ["🍜", "Ramen"],
+      ["🥞", "Brunch"],
+      ["🍰", "Dessert first"],
+      ["♡", "You pick"]
+    ];
 
-      noBtn.style.left = `${x}px`;
-      noBtn.style.top = `${y}px`;
-    });
+    function sparkle() {
+      for (let i = 0; i < 35; i++) {
+        const element = document.createElement("span");
 
-    // YES button celebration
-    yesBtn.addEventListener("click", () => {
-  // Hide top content + buttons + hint
-  document.getElementById("topContent").style.display = "none";
-  document.querySelector(".buttons").style.display = "none";
-  document.querySelector(".hint").style.display = "none";
+        element.className = "confetti";
+        element.textContent = ["♥", "✦", "•"][i % 3];
+        element.style.left = Math.random() * 100 + "vw";
+        element.style.animationDelay = Math.random() * 0.6 + "s";
+        element.style.fontSize = 10 + Math.random() * 12 + "px";
 
-  // Show celebration
-  document.getElementById("celebrate").style.display = "block";
+        document.body.append(element);
 
-  // Confetti burst
-  confetti({
-    particleCount: 150,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
+        setTimeout(() => element.remove(), 4000);
+      }
+    }
 
-  setTimeout(() => {
-    confetti({ particleCount: 100, angle: 60, spread: 55, origin: { x: 0 } });
-    confetti({ particleCount: 100, angle: 120, spread: 55, origin: { x: 1 } });
-  }, 300);
-});
+    function render() {
+      if (step === 0) {
+        card.innerHTML = `
+          <div class="eyebrow">A small question</div>
 
+          <h1>
+            Will you go on<br>
+            a date with me?
+          </h1>
+
+          <p>
+            No grand speech. Just you, me,<br>
+            and something lovely to look forward to.
+          </p>
+
+          <div class="art">
+            <span>💌</span>
+          </div>
+
+          <button class="primary" id="yes">
+            ♥ &nbsp; Yes, I'd love to
+          </button>
+
+          <button class="secondary" id="maybe">
+            Let me think…
+          </button>
+
+          <div class="foot">
+            ONE LITTLE YES. ENDLESS POSSIBILITIES.
+          </div>
+        `;
+
+        document.querySelector("#yes").onclick = () => {
+          step = 1;
+          render();
+          sparkle();
+        };
+
+        document.querySelector("#maybe").onclick = (event) => {
+          event.target.textContent =
+            "Take your time. The invitation stays ♡";
+        };
+      }
+
+      if (step === 1) {
+        const activities = [
+          "Cozy coffee",
+          "Arcade night",
+          "Sunset walk",
+          "Dinner & a movie",
+          "Mini golf",
+          "Bookstore wander",
+          "Surprise me"
+        ];
+
+        card.innerHTML = `
+          <div class="steps">
+            <i class="on"></i>
+            <i></i>
+          </div>
+
+          <div class="eyebrow">Step 1 of 2</div>
+          <div class="icon">♧</div>
+
+          <h1>When works for you?</h1>
+
+          <p>
+            Pick a date and time. Let's make it special.
+          </p>
+
+          <form id="when">
+            <div class="fields">
+              <label for="date">Date</label>
+              <input type="date" id="date" required>
+
+              <label for="time">Time</label>
+              <input type="time" id="time" required>
+
+              <label for="plan">The plan</label>
+
+              <select id="plan">
+                ${activities.map((activity) => `
+                  <option>${activity}</option>
+                `).join("")}
+              </select>
+            </div>
+
+            <button class="primary">
+              Next: the food →
+            </button>
+          </form>
+
+          <button class="secondary" id="back">
+            ← Back
+          </button>
+        `;
+
+        for (const key of ["date", "time", "plan"]) {
+          document.getElementById(key).value = data[key];
+        }
+
+        const now = new Date();
+
+        document.querySelector("#date").min = [
+          now.getFullYear(),
+          String(now.getMonth() + 1).padStart(2, "0"),
+          String(now.getDate()).padStart(2, "0")
+        ].join("-");
+
+        document.querySelector("#when").onsubmit = (event) => {
+          event.preventDefault();
+
+          for (const key of ["date", "time", "plan"]) {
+            data[key] = document.getElementById(key).value;
+          }
+
+          step = 2;
+          render();
+        };
+
+        document.querySelector("#back").onclick = () => {
+          step = 0;
+          render();
+        };
+      }
+
+      if (step === 2) {
+        card.innerHTML = `
+          <div class="steps">
+            <i class="on"></i>
+            <i class="on"></i>
+          </div>
+
+          <div class="eyebrow">Step 2 of 2</div>
+          <div class="icon">♧</div>
+
+          <h1>What should we eat?</h1>
+
+          <p>
+            The most delicious decision of the night.
+          </p>
+
+          <div class="foods">
+            ${foods.map(([emoji, name]) => `
+              <button
+                class="food ${data.food === name ? "selected" : ""}"
+                aria-pressed="${data.food === name}"
+                data-food="${name}"
+              >
+                <span>${emoji}</span>
+                ${name}
+              </button>
+            `).join("")}
+          </div>
+
+          <div class="row">
+            <button class="secondary" id="back">
+              ← Back
+            </button>
+
+            <button class="primary" id="done">
+              It's a date ♡
+            </button>
+          </div>
+        `;
+
+        document.querySelectorAll("[data-food]").forEach((button) => {
+          button.onclick = () => {
+            data.food = button.dataset.food;
+            render();
+          };
+        });
+
+        document.querySelector("#back").onclick = () => {
+          step = 1;
+          render();
+        };
+
+        document.querySelector("#done").onclick = () => {
+          step = 3;
+          render();
+          sparkle();
+        };
+      }
+
+      if (step === 3) {
+        const date = new Date(data.date + "T" + data.time);
+
+        const niceDate = date.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric"
+        });
+
+        const time = date.toLocaleTimeString(undefined, {
+          hour: "numeric",
+          minute: "2-digit"
+        });
+
+        card.innerHTML = `
+          <div class="eyebrow">
+            Officially looking forward to it
+          </div>
+
+          <div class="art">
+            <span>🥂</span>
+          </div>
+
+          <h1>It's a date.</h1>
+
+          <p>A little plan. A very big smile.</p>
+
+          <div class="summary">
+            <div>
+              <span>When</span>
+              <strong>${niceDate}</strong>
+            </div>
+
+            <div>
+              <span>Time</span>
+              <strong>${time}</strong>
+            </div>
+
+            <div>
+              <span>The plan</span>
+              <strong>${data.plan}</strong>
+            </div>
+
+            <div>
+              <span>On the menu</span>
+              <strong>${data.food}</strong>
+            </div>
+          </div>
+
+          <button class="primary" id="copy">
+            Copy our date plan ♡
+          </button>
+
+          <button class="secondary" id="edit">
+            Edit the details
+          </button>
+
+          <div class="foot">
+            YOUR PLAN IS READY TO COPY AND SEND.
+          </div>
+        `;
+
+        document.querySelector("#copy").onclick = async () => {
+          const text = [
+            "It's a date! ♡",
+            `${niceDate} at ${time}`,
+            data.plan,
+            `Food: ${data.food}`
+          ].join("\n");
+
+          try {
+            await navigator.clipboard.writeText(text);
+
+            document.querySelector("#copy").textContent =
+              "Copied! Ready to send ♥";
+          } catch {
+            document.querySelector("#copy").textContent =
+              "Select and copy the details above";
+          }
+        };
+
+        document.querySelector("#edit").onclick = () => {
+          step = 1;
+          render();
+        };
+      }
+    }
+
+    render();
   </script>
-
 </body>
 </html>
